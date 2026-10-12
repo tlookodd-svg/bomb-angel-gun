@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bomb Angel Gun - English Classroom Game</title>
+<style>
+:root{--purple:#4b3487;--deep:#21183f;--gold:#ffd66b;--paper:#fbf9ff;--ink:#241c3d;--line:#e0d8f0}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;color:var(--ink);background:linear-gradient(135deg,#f2edff,#fff8e8);}
+main{max-width:1000px;margin:auto;padding:18px}.hero{background:var(--deep);color:white;border:3px solid var(--gold);border-radius:22px;text-align:center;padding:22px 12px}.hero h1{margin:0;font-size:clamp(25px,5vw,42px)}.hero p{margin:8px 0 0}.panel{background:white;border:1px solid var(--line);border-radius:16px;padding:16px;margin-top:15px;box-shadow:0 5px 16px #28194c10}.panel h2{margin:0 0 12px;font-size:21px}.settings{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.field label{display:block;font-weight:bold;margin-bottom:6px}.field select,.field input{width:100%;padding:10px;border:1px solid #cfc3e8;border-radius:9px;font-size:16px;background:white}.buttons{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.btn{border:1px solid #d7cdea;background:white;color:var(--ink);padding:10px 14px;border-radius:10px;font-weight:bold;font-size:15px;cursor:pointer}.btn.primary{background:var(--purple);color:white;border-color:var(--purple)}.teams{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.team{background:white;border:2px solid var(--line);border-radius:12px;padding:12px;text-align:center;cursor:pointer;color:var(--ink)}.team.active{background:#f1ebff;border-color:var(--purple)}.team-name{font-weight:bold}.score{font-size:28px;font-weight:900;margin:5px 0}.small{font-size:13px;color:#6b6380}.board-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}.board{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}.tile{min-height:86px;border:2px solid var(--gold);border-radius:13px;background:linear-gradient(145deg,#644ea3,#28204e);color:white;font-size:28px;font-weight:900;cursor:pointer;box-shadow:0 3px 0 #18112e}.tile:hover:not(:disabled){transform:translateY(-2px)}.tile.open{background:#f6f3fc;color:var(--ink);border-color:var(--line);box-shadow:none}.tile:disabled{cursor:default;opacity:1}.result{min-height:56px;margin-top:12px;padding:14px;border-radius:12px;background:#f2edff;text-align:center;font-weight:bold;line-height:1.5}.result select{padding:9px;border-radius:8px;margin:0 6px}.legend{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.legend>div{padding:12px;background:#f8f6fc;border-radius:12px}.history{max-height:180px;overflow:auto}.history div{padding:7px 0;border-bottom:1px solid var(--line)}@media(max-width:560px){main{padding:10px}.settings{grid-template-columns:1fr 1fr}.field:last-child{grid-column:1/-1}.board{gap:6px}.tile{min-height:62px;font-size:23px}.panel{padding:12px}.team{padding:8px}.score{font-size:23px}.legend{gap:6px}.legend>div{padding:8px;font-size:13px}}
+</style>
+</head>
+<body>
+<main>
+<header class="hero"><h1>💣 BOMB · 😇 ANGEL · 🔫 GUN</h1><p>English Question Challenge · 3-Team Battle</p></header>
+<section class="panel">
+<h2>⚙️ Game Setup</h2>
+<div class="settings">
+ <div class="field"><label for="tileCount">Number of tiles</label><select id="tileCount"><option value="15">15</option><option value="20">20</option><option value="25" selected>25</option><option value="30">30</option></select></div>
+ <div class="field"><label for="points">Points per effect</label><input id="points" type="number" min="1" max="99" value="1"></div>
+ <div class="field"><label for="bombCount">Number of Bombs</label><select id="bombCount"><option value="5">5</option><option value="8" selected>8</option><option value="10">10</option></select></div>
+</div>
+<div class="buttons"><button class="btn primary" id="newGame" type="button">🔀 New Game / Shuffle</button><button class="btn" id="resetScores" type="button">↻ Reset Scores</button></div>
+<p class="small">Ask a question first. A team may choose a tile only after answering correctly.</p>
+</section>
+<section class="panel"><h2>🏆 Scoreboard — Select the active team</h2><div class="teams" id="teams"></div><p>Current turn: <strong id="currentTurn">Team A</strong></p></section>
+<section class="panel"><div class="board-head"><h2>🎲 Choose a tile</h2><span class="small" id="remaining">25 tiles remaining</span></div><div class="board" id="board"><!-- tiles are added by JavaScript --></div><div class="result" id="result" aria-live="polite">Ask an English question. If the team answers correctly, let them choose a tile.</div></section>
+<section class="panel"><h2>📘 Rules</h2><div class="legend"><div><div style="font-size:28px">💣</div><b>Bomb</b><br>Active team loses points.</div><div><div style="font-size:28px">😇</div><b>Angel</b><br>Active team gains points.</div><div><div style="font-size:28px">🔫</div><b>Gun</b><br>Steal points from another team.</div></div></section>
+<section class="panel"><div class="board-head"><h2>🧾 Round History</h2><button class="btn" id="undo" type="button">Undo last result</button></div><div class="history" id="history"><span class="small">No turns yet.</span></div></section>
+<div class="buttons"><button class="btn primary" id="nextTeam" type="button">➡️ Next Team</button><button class="btn" id="print" type="button">🖨️ Print</button></div>
+<p class="small" style="text-align:center;margin-top:18px">Bomb Angel Gun · Classroom Edition · No student phones required</p>
+</main>
+<script>
+(function(){
+'use strict';
+const get=id=>document.getElementById(id);
+const teamNames=['Team A','Team B','Team C'];
+let teams=[],tiles=[],turn=0,history=[];
+function pointValue(){const value=parseInt(get('points').value,10);return Number.isFinite(value)?Math.max(1,Math.min(99,value)):1;}
+function shuffle(items){for(let i=items.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[items[i],items[j]]=[items[j],items[i]];}return items;}
+function say(message){const result=get('result');result.replaceChildren(document.createTextNode(message));}
+function newGame(resetScores){
+ if(resetScores||teams.length===0) teams=teamNames.map(name=>({name,score:0}));
+ const count=parseInt(get('tileCount').value,10)||25;
+ const bombs=Math.min(count-2,parseInt(get('bombCount').value,10)||8);
+ const angels=Math.floor((count-bombs)/2);
+ const deck=[...Array(bombs).fill('bomb'),...Array(angels).fill('angel')];
+ while(deck.length<count)deck.push('gun');
+ tiles=shuffle(deck).map((type,index)=>({id:index+1,type,opened:false}));
+ turn=0;history=[];render();say('New game ready! Ask a question, then let the active team choose a tile.');
+}
+function renderTeams(){const box=get('teams');box.replaceChildren();teams.forEach((team,index)=>{const button=document.createElement('button');button.type='button';button.className='team'+(index===turn?' active':'');button.innerHTML='<div class="team-name"></div><div class="score"></div><div class="small"></div>';button.querySelector('.team-name').textContent=team.name;button.querySelector('.score').textContent=team.score+' pts';button.querySelector('.small').textContent=index===turn?'▶ Active team':'Click to select';button.addEventListener('click',()=>{turn=index;renderTeams();say(team.name+' is now the active team.');});box.appendChild(button);});get('currentTurn').textContent=teams[turn]?.name||'Team A';}
+function renderBoard(){const box=get('board');box.replaceChildren();tiles.forEach(tile=>{const button=document.createElement('button');button.type='button';button.className='tile'+(tile.opened?' open':'');button.disabled=tile.opened;button.textContent=tile.opened?({bomb:'💣',angel:'😇',gun:'🔫'}[tile.type]):String(tile.id).padStart(2,'0');button.setAttribute('aria-label',tile.opened?'Tile '+tile.id+' revealed':'Open tile '+tile.id);button.addEventListener('click',()=>reveal(tile));box.appendChild(button);});get('remaining').textContent=tiles.filter(tile=>!tile.opened).length+' tiles remaining';}
+function renderHistory(){const box=get('history');box.replaceChildren();if(!history.length){const span=document.createElement('span');span.className='small';span.textContent='No turns yet.';box.appendChild(span);return;}history.slice().reverse().forEach(item=>{const line=document.createElement('div');line.textContent=({bomb:'💣 Bomb',angel:'😇 Angel',gun:'🔫 Gun'}[item.type])+' · '+item.actor+(item.target?' → '+item.target:'')+' · Tile '+item.id;box.appendChild(line);});}
+function render(){renderTeams();renderBoard();renderHistory();}
+function reveal(tile){if(tile.opened)return;tile.opened=true;const value=pointValue(),actor=teams[turn],before=teams.map(t=>t.score);if(tile.type==='bomb'){actor.score-=value;history.push({id:tile.id,type:tile.type,actor:actor.name,target:null,before,turn});render();say('💣 BOMB! '+actor.name+' loses '+value+' point(s).');}else if(tile.type==='angel'){actor.score+=value;history.push({id:tile.id,type:tile.type,actor:actor.name,target:null,before,turn});render();say('😇 ANGEL! '+actor.name+' gains '+value+' point(s).');}else{render();const result=get('result');result.replaceChildren(document.createTextNode('🔫 GUN! Choose a team to steal '+value+' point(s) from. '));const select=document.createElement('select');select.setAttribute('aria-label','Choose rival team');teams.filter(t=>t!==actor).forEach(t=>{const option=document.createElement('option');option.value=t.name;option.textContent=t.name;select.appendChild(option);});const confirm=document.createElement('button');confirm.type='button';confirm.className='btn primary';confirm.textContent='Confirm steal';confirm.style.marginLeft='6px';confirm.addEventListener('click',()=>{const target=teams.find(t=>t.name===select.value);if(!target)return;actor.score+=value;target.score-=value;history.push({id:tile.id,type:tile.type,actor:actor.name,target:target.name,before,turn});render();say('🔫 GUN! '+actor.name+' stole '+value+' point(s) from '+target.name+'.');});result.append(select,confirm);}}
+get('newGame').addEventListener('click',()=>newGame(false));
+get('resetScores').addEventListener('click',()=>newGame(true));
+get('tileCount').addEventListener('change',()=>newGame(false));get('bombCount').addEventListener('change',()=>newGame(false));
+get('nextTeam').addEventListener('click',()=>{turn=(turn+1)%teams.length;renderTeams();say('It is now '+teams[turn].name+'’s turn. Ask an English question!');});
+get('undo').addEventListener('click',()=>{const last=history.pop();if(!last){say('There is no result to undo.');return;}last.before.forEach((score,index)=>teams[index].score=score);const tile=tiles.find(t=>t.id===last.id);if(tile)tile.opened=false;turn=last.turn;render();say('Last result undone. Scores restored.');});
+get('print').addEventListener('click',()=>window.print());
+newGame(true);
+})();
+</script>
+</body>
+</html>
